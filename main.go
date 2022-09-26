@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"os/signal"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -24,13 +26,20 @@ func main() {
 		signal.Stop(interruptCh)
 		close(closeCh)
 	}()
-	go startProducer("A", "P1", time.Millisecond*100, closeCh, &wg)
-	go startProducer("B", "P2", time.Millisecond*50, closeCh, &wg)
-	go startProducer("A", "P3", time.Millisecond*10, closeCh, &wg)
-	go startProducer("B", "P4", time.Millisecond*500, closeCh, &wg)
-	go startConsumer("G1", "A", "C1", closeCh, &wg)
-	go startConsumer("G2", "B", "C2", closeCh, &wg)
-	go startConsumer("G1", "A", "C3", closeCh, &wg)
+	rand.Seed(time.Now().Unix())
+	topicIdSuffix := strconv.Itoa(rand.Int())
+	grpSuffix := strconv.Itoa(rand.Int())
+
+	createTopic("A-" + topicIdSuffix)
+	createTopic("B-" + topicIdSuffix)
+
+	go startProducer("A-"+topicIdSuffix, "P1", time.Millisecond*100, closeCh, &wg)
+	go startProducer("B-"+topicIdSuffix, "P2", time.Millisecond*50, closeCh, &wg)
+	go startProducer("A-"+topicIdSuffix, "P3", time.Millisecond*10, closeCh, &wg)
+	go startProducer("B-"+topicIdSuffix, "P4", time.Millisecond*500, closeCh, &wg)
+	go startConsumer("G1-"+grpSuffix, "A-"+topicIdSuffix, "C1", closeCh, &wg)
+	go startConsumer("G2-"+grpSuffix, "B-"+topicIdSuffix, "C2", closeCh, &wg)
+	go startConsumer("G1-"+grpSuffix, "A-"+topicIdSuffix, "C3", closeCh, &wg)
 
 	wg.Wait()
 }

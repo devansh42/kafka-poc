@@ -1,5 +1,7 @@
 # Summary 
 This app
+
+0. Creates fresh topics/consumer groups every time
 1. Creates few Producers
 2. Creates few consumers along with consumer groups
 3. Producer produces message after passing the given interval periodically
